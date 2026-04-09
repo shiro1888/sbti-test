@@ -1,0 +1,12 @@
+{
+  "name": "sbti-test-local",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local mirror of https://sbti.unun.dev/",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build:pages": "node scripts/prepare-publish.js",
+    "deploy:pages": "node scripts/deploy-pages.js"
+  }
+}
