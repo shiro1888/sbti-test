@@ -126,6 +126,12 @@
       margin-top: 22px;
     }
     .hero-minimal {
+      --card-shift-x: 0px;
+      --card-shift-y: 0px;
+      --card-tilt-x: 0deg;
+      --card-tilt-y: 0deg;
+      --spot-x: 50%;
+      --spot-y: 50%;
       min-height: 48vh;
       display: flex;
       flex-direction: column;
@@ -133,15 +139,65 @@
       align-items: center;
       text-align: center;
       padding: 42px 20px;
+      transition: transform .26s ease, box-shadow .26s ease, border-color .26s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .hero-minimal::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at var(--spot-x) var(--spot-y), rgba(169, 141, 255, 0.18), rgba(169, 141, 255, 0) 32%);
+      opacity: 0;
+      transition: opacity .22s ease;
+      pointer-events: none;
     }
     .hero-minimal::after { display: none; }
+    .hero-minimal.is-hovered {
+      border-color: #d7c6ff;
+      box-shadow: 0 30px 72px rgba(109, 79, 224, 0.22);
+    }
+    .hero-minimal.is-hovered::before {
+      opacity: 1;
+    }
     .hero-minimal h1 {
       max-width: none;
       margin: 0;
+      position: relative;
+      z-index: 1;
     }
     .hero-actions-single {
       justify-content: center;
       margin-top: 28px;
+      position: relative;
+      z-index: 1;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .hero-minimal {
+        transform:
+          perspective(1400px)
+          translate3d(var(--card-shift-x), var(--card-shift-y), 0)
+          rotateX(var(--card-tilt-x))
+          rotateY(var(--card-tilt-y))
+          scale(1);
+      }
+      .hero-minimal.is-hovered {
+        transform:
+          perspective(1400px)
+          translate3d(var(--card-shift-x), var(--card-shift-y), 0)
+          rotateX(var(--card-tilt-x))
+          rotateY(var(--card-tilt-y))
+          scale(1.014);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-minimal {
+        transition: none;
+      }
+      .hero-minimal::before {
+        transition: none;
+      }
     }
 
     button {
@@ -1481,12 +1537,39 @@
     const progressText = document.getElementById('progressText');
     const submitBtn = document.getElementById('submitBtn');
     const testHint = document.getElementById('testHint');
+    const introHero = document.querySelector('.hero-minimal');
 
     function showScreen(name) {
       Object.entries(screens).forEach(([key, el]) => {
         el.classList.toggle('active', key === name);
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetIntroHeroMotion() {
+      if (!introHero) return;
+      introHero.classList.remove('is-hovered');
+      introHero.style.setProperty('--card-shift-x', '0px');
+      introHero.style.setProperty('--card-shift-y', '0px');
+      introHero.style.setProperty('--card-tilt-x', '0deg');
+      introHero.style.setProperty('--card-tilt-y', '0deg');
+      introHero.style.setProperty('--spot-x', '50%');
+      introHero.style.setProperty('--spot-y', '50%');
+    }
+
+    function updateIntroHeroMotion(event) {
+      if (!introHero) return;
+      const rect = introHero.getBoundingClientRect();
+      const ratioX = ((event.clientX - rect.left) / rect.width) - 0.5;
+      const ratioY = ((event.clientY - rect.top) / rect.height) - 0.5;
+
+      introHero.classList.add('is-hovered');
+      introHero.style.setProperty('--card-shift-x', `${ratioX * 18}px`);
+      introHero.style.setProperty('--card-shift-y', `${ratioY * 14}px`);
+      introHero.style.setProperty('--card-tilt-x', `${ratioY * -5}deg`);
+      introHero.style.setProperty('--card-tilt-y', `${ratioX * 7}deg`);
+      introHero.style.setProperty('--spot-x', `${((event.clientX - rect.left) / rect.width) * 100}%`);
+      introHero.style.setProperty('--spot-y', `${((event.clientY - rect.top) / rect.height) * 100}%`);
     }
 
     function shuffle(array) {
@@ -1732,6 +1815,11 @@
     document.getElementById('submitBtn').addEventListener('click', renderResult);
     document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
     document.getElementById('toTopBtn').addEventListener('click', () => showScreen('intro'));
+    if (introHero) {
+      introHero.addEventListener('mouseenter', updateIntroHeroMotion);
+      introHero.addEventListener('mousemove', updateIntroHeroMotion);
+      introHero.addEventListener('mouseleave', resetIntroHeroMotion);
+    }
   </script>
 
 </body>
