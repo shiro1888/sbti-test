@@ -248,23 +248,6 @@
       flex-wrap: wrap;
     }
 
-    .test-header {
-      margin-bottom: 18px;
-    }
-
-    .test-header h2 {
-      font-size: clamp(24px, 4vw, 32px);
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-    }
-
-    .test-header p {
-      margin-top: 8px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
     .progress {
       flex: 1;
       min-width: 240px;
@@ -760,31 +743,10 @@
     }
 
     @media (max-width: 600px) {
-      .shell {
-        min-height: 100dvh;
-        padding: 14px 12px 42px;
-      }
-      #intro.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: calc(100dvh - 56px);
-      }
-      #intro .hero {
-        margin-top: 0;
-      }
-      .hero-minimal {
-        min-height: min(60dvh, 420px);
-      }
+      .shell { padding: 14px 12px 42px; }
       .hero, .test-wrap, .result-wrap { padding: 16px; }
       .hero h1 { font-size: 32px; }
       .question-title { font-size: 15px; }
-      .test-header {
-        margin-bottom: 16px;
-      }
-      .test-header h2 {
-        font-size: 22px;
-      }
       .dim-grid,
       .score-grid { grid-template-columns: 1fr; }
     }
@@ -803,10 +765,6 @@
 
     <section id="test" class="screen">
       <div class="test-wrap card">
-        <div class="test-header">
-          <h2>人格测试</h2>
-          <p>把题完整做完，结果才会放出来。</p>
-        </div>
         <div class="topbar">
           <div class="progress"><span id="progressBar"></span></div>
           <div class="progress-text" id="progressText">0 / 31</div>
