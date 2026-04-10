@@ -1701,7 +1701,7 @@
 
     function getQuestionMetaLabel(q) {
       if (q.special) return '补充题';
-      return app.previewMode ? dimensionMeta[q.dim].name : '维度已隐藏';
+      return app.previewMode ? dimensionMeta[q.dim].name : '';
     }
 
     function renderQuestions() {
@@ -1710,10 +1710,11 @@
       visibleQuestions.forEach((q, index) => {
         const card = document.createElement('article');
         card.className = 'question';
+        const metaLabel = getQuestionMetaLabel(q);
         card.innerHTML = `
           <div class="question-meta">
             <div class="badge">第 ${index + 1} 题</div>
-            <div>${getQuestionMetaLabel(q)}</div>
+            ${metaLabel ? `<div>${metaLabel}</div>` : ''}
           </div>
           <div class="question-title">${q.text}</div>
           <div class="options">
