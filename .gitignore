@@ -1,3 +1,4 @@
 .tmp-*
 publish/
 .wrangler/
+.playwright-cli/
