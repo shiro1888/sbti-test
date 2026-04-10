@@ -139,7 +139,10 @@
       align-items: center;
       text-align: center;
       padding: 42px 20px;
-      transition: transform .26s ease, box-shadow .26s ease, border-color .26s ease;
+      transition:
+        transform .52s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow .42s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color .34s ease;
       transform-style: preserve-3d;
       will-change: transform;
     }
@@ -150,13 +153,13 @@
       border-radius: inherit;
       background: radial-gradient(circle at var(--spot-x) var(--spot-y), rgba(169, 141, 255, 0.18), rgba(169, 141, 255, 0) 32%);
       opacity: 0;
-      transition: opacity .22s ease;
+      transition: opacity .42s ease;
       pointer-events: none;
     }
     .hero-minimal::after { display: none; }
     .hero-minimal.is-hovered {
       border-color: #d7c6ff;
-      box-shadow: 0 30px 72px rgba(109, 79, 224, 0.22);
+      box-shadow: 0 34px 82px rgba(109, 79, 224, 0.24);
     }
     .hero-minimal.is-hovered::before {
       opacity: 1;
