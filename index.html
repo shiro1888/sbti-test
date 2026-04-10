@@ -140,11 +140,10 @@
       text-align: center;
       padding: 42px 20px;
       transition:
-        transform .52s cubic-bezier(0.22, 1, 0.36, 1),
         box-shadow .42s cubic-bezier(0.22, 1, 0.36, 1),
         border-color .34s ease;
       transform-style: preserve-3d;
-      will-change: transform;
+      will-change: transform, box-shadow;
     }
     .hero-minimal::before {
       content: "";
@@ -1541,6 +1540,22 @@
     const submitBtn = document.getElementById('submitBtn');
     const testHint = document.getElementById('testHint');
     const introHero = document.querySelector('.hero-minimal');
+    const introHeroMotion = introHero ? {
+      rafId: 0,
+      hovered: false,
+      currentX: 0,
+      currentY: 0,
+      currentTiltX: 0,
+      currentTiltY: 0,
+      currentSpotX: 50,
+      currentSpotY: 50,
+      targetX: 0,
+      targetY: 0,
+      targetTiltX: 0,
+      targetTiltY: 0,
+      targetSpotX: 50,
+      targetSpotY: 50
+    } : null;
 
     function showScreen(name) {
       Object.entries(screens).forEach(([key, el]) => {
@@ -1549,30 +1564,85 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function applyIntroHeroMotion() {
+      if (!introHero || !introHeroMotion) return;
+      introHero.style.setProperty('--card-shift-x', `${introHeroMotion.currentX.toFixed(2)}px`);
+      introHero.style.setProperty('--card-shift-y', `${introHeroMotion.currentY.toFixed(2)}px`);
+      introHero.style.setProperty('--card-tilt-x', `${introHeroMotion.currentTiltX.toFixed(2)}deg`);
+      introHero.style.setProperty('--card-tilt-y', `${introHeroMotion.currentTiltY.toFixed(2)}deg`);
+      introHero.style.setProperty('--spot-x', `${introHeroMotion.currentSpotX.toFixed(2)}%`);
+      introHero.style.setProperty('--spot-y', `${introHeroMotion.currentSpotY.toFixed(2)}%`);
+    }
+
+    function animateIntroHeroMotion() {
+      if (!introHero || !introHeroMotion) return;
+
+      const ease = introHeroMotion.hovered ? 0.2 : 0.11;
+      introHeroMotion.currentX += (introHeroMotion.targetX - introHeroMotion.currentX) * ease;
+      introHeroMotion.currentY += (introHeroMotion.targetY - introHeroMotion.currentY) * ease;
+      introHeroMotion.currentTiltX += (introHeroMotion.targetTiltX - introHeroMotion.currentTiltX) * ease;
+      introHeroMotion.currentTiltY += (introHeroMotion.targetTiltY - introHeroMotion.currentTiltY) * ease;
+      introHeroMotion.currentSpotX += (introHeroMotion.targetSpotX - introHeroMotion.currentSpotX) * ease;
+      introHeroMotion.currentSpotY += (introHeroMotion.targetSpotY - introHeroMotion.currentSpotY) * ease;
+
+      applyIntroHeroMotion();
+
+      const settled =
+        Math.abs(introHeroMotion.targetX - introHeroMotion.currentX) < 0.08 &&
+        Math.abs(introHeroMotion.targetY - introHeroMotion.currentY) < 0.08 &&
+        Math.abs(introHeroMotion.targetTiltX - introHeroMotion.currentTiltX) < 0.03 &&
+        Math.abs(introHeroMotion.targetTiltY - introHeroMotion.currentTiltY) < 0.03 &&
+        Math.abs(introHeroMotion.targetSpotX - introHeroMotion.currentSpotX) < 0.12 &&
+        Math.abs(introHeroMotion.targetSpotY - introHeroMotion.currentSpotY) < 0.12;
+
+      if (!introHeroMotion.hovered && settled) {
+        introHero.classList.remove('is-hovered');
+        introHeroMotion.currentX = 0;
+        introHeroMotion.currentY = 0;
+        introHeroMotion.currentTiltX = 0;
+        introHeroMotion.currentTiltY = 0;
+        introHeroMotion.currentSpotX = 50;
+        introHeroMotion.currentSpotY = 50;
+        applyIntroHeroMotion();
+        introHeroMotion.rafId = 0;
+        return;
+      }
+
+      introHeroMotion.rafId = window.requestAnimationFrame(animateIntroHeroMotion);
+    }
+
+    function ensureIntroHeroAnimation() {
+      if (!introHeroMotion || introHeroMotion.rafId) return;
+      introHeroMotion.rafId = window.requestAnimationFrame(animateIntroHeroMotion);
+    }
+
     function resetIntroHeroMotion() {
-      if (!introHero) return;
-      introHero.classList.remove('is-hovered');
-      introHero.style.setProperty('--card-shift-x', '0px');
-      introHero.style.setProperty('--card-shift-y', '0px');
-      introHero.style.setProperty('--card-tilt-x', '0deg');
-      introHero.style.setProperty('--card-tilt-y', '0deg');
-      introHero.style.setProperty('--spot-x', '50%');
-      introHero.style.setProperty('--spot-y', '50%');
+      if (!introHero || !introHeroMotion) return;
+      introHeroMotion.hovered = false;
+      introHeroMotion.targetX = 0;
+      introHeroMotion.targetY = 0;
+      introHeroMotion.targetTiltX = 0;
+      introHeroMotion.targetTiltY = 0;
+      introHeroMotion.targetSpotX = 50;
+      introHeroMotion.targetSpotY = 50;
+      ensureIntroHeroAnimation();
     }
 
     function updateIntroHeroMotion(event) {
-      if (!introHero) return;
+      if (!introHero || !introHeroMotion) return;
       const rect = introHero.getBoundingClientRect();
       const ratioX = ((event.clientX - rect.left) / rect.width) - 0.5;
       const ratioY = ((event.clientY - rect.top) / rect.height) - 0.5;
 
+      introHeroMotion.hovered = true;
       introHero.classList.add('is-hovered');
-      introHero.style.setProperty('--card-shift-x', `${ratioX * 18}px`);
-      introHero.style.setProperty('--card-shift-y', `${ratioY * 14}px`);
-      introHero.style.setProperty('--card-tilt-x', `${ratioY * -5}deg`);
-      introHero.style.setProperty('--card-tilt-y', `${ratioX * 7}deg`);
-      introHero.style.setProperty('--spot-x', `${((event.clientX - rect.left) / rect.width) * 100}%`);
-      introHero.style.setProperty('--spot-y', `${((event.clientY - rect.top) / rect.height) * 100}%`);
+      introHeroMotion.targetX = ratioX * 18;
+      introHeroMotion.targetY = ratioY * 14;
+      introHeroMotion.targetTiltX = ratioY * -5;
+      introHeroMotion.targetTiltY = ratioX * 7;
+      introHeroMotion.targetSpotX = ((event.clientX - rect.left) / rect.width) * 100;
+      introHeroMotion.targetSpotY = ((event.clientY - rect.top) / rect.height) * 100;
+      ensureIntroHeroAnimation();
     }
 
     function shuffle(array) {
