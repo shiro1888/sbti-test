@@ -360,6 +360,14 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.7;
+      cursor: pointer;
+      user-select: none;
+      transition: opacity .28s ease, transform .28s ease;
+    }
+
+    .hint.is-switching {
+      opacity: 0.35;
+      transform: translateY(4px);
     }
 
     .result-hero {
@@ -1539,6 +1547,12 @@
     const progressText = document.getElementById('progressText');
     const submitBtn = document.getElementById('submitBtn');
     const testHint = document.getElementById('testHint');
+    const hintLines = [
+      '人生若只如初见，何事秋风悲画扇',
+      '山有木兮木有枝，心悦君兮君不知。'
+    ];
+    let currentHintIndex = 0;
+    let hintSwitchTimer = 0;
     const introHero = document.querySelector('.hero-minimal');
     const introHeroMotion = introHero ? {
       rafId: 0,
@@ -1562,6 +1576,28 @@
         el.classList.toggle('active', key === name);
       });
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderHintLine(index) {
+      if (!testHint) return;
+      currentHintIndex = index;
+      testHint.textContent = hintLines[currentHintIndex];
+    }
+
+    function switchHintLine(nextIndex = (currentHintIndex + 1) % hintLines.length) {
+      if (!testHint) return;
+      testHint.classList.add('is-switching');
+      window.setTimeout(() => {
+        renderHintLine(nextIndex);
+        testHint.classList.remove('is-switching');
+      }, 160);
+    }
+
+    function startHintRotation() {
+      if (!testHint || hintSwitchTimer) return;
+      hintSwitchTimer = window.setInterval(() => {
+        switchHintLine();
+      }, 4200);
     }
 
     function applyIntroHeroMotion() {
@@ -1726,9 +1762,6 @@
       progressText.textContent = `${done} / ${total}`;
       const complete = done === total && total > 0;
       submitBtn.disabled = !complete;
-      testHint.textContent = complete
-        ? '都做完了。现在可以把你的电子魂魄交给结果页审判。'
-        : '全选完才会放行。世界已经够乱了，起码把题做完整。';
     }
 
     function sumToLevel(score) {
@@ -1888,6 +1921,11 @@
     document.getElementById('submitBtn').addEventListener('click', renderResult);
     document.getElementById('restartBtn').addEventListener('click', () => startTest(false));
     document.getElementById('toTopBtn').addEventListener('click', () => showScreen('intro'));
+    if (testHint) {
+      renderHintLine(0);
+      startHintRotation();
+      testHint.addEventListener('click', () => switchHintLine());
+    }
     if (introHero) {
       introHero.addEventListener('mouseenter', updateIntroHeroMotion);
       introHero.addEventListener('mousemove', updateIntroHeroMotion);
